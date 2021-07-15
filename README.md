@@ -1,3 +1,14 @@
+# Rust Dogecoin Library
+
+**WARNING: Work In Progres**
+
+This repository was forked from [rust-bitcoin]() in an effort to work with
+Dogecoin in Rust.
+
+Use at your own risk.
+
+# ----- Original electrs README ------
+
 ![Continuous integration](https://github.com/rust-bitcoin/rust-bitcoin/workflows/Continuous%20integration/badge.svg)
 [![Safety Dance](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 
