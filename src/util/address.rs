@@ -46,11 +46,11 @@ use util::base58;
 use util::ecdsa;
 
 // Main (bitcoin) prefixes.
-const PUBKEY_ADDRESS_PREFIX_MAIN: u8 = 0; // 0x00
-const SCRIPT_ADDRESS_PREFIX_MAIN: u8 = 5; // 0x05
+const PUBKEY_ADDRESS_PREFIX_MAIN: u8 = 30; // 0x1e
+const SCRIPT_ADDRESS_PREFIX_MAIN: u8 = 22; // 0x16
 
 // Test (tesnet, signet, regtest) prefixes.
-const PUBKEY_ADDRESS_PREFIX_TEST: u8 = 111; // 0x6f
+const PUBKEY_ADDRESS_PREFIX_TEST: u8 = 113; // 0x71
 const SCRIPT_ADDRESS_PREFIX_TEST: u8 = 196; // 0xc4
 
 /// Address error.
