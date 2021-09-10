@@ -30,7 +30,7 @@ use std::{error, fmt};
 
 use hash_types::ScriptHash;
 use network::constants::Network;
-use util::address;
+use util::address::{self, Blockchain, Prefix};
 
 /// Encoding of "pubkey here" in script; from Bitcoin Core `src/script/script.h`
 static PUBKEY: u8 = 0xFE;
@@ -192,15 +192,21 @@ pub fn create_address<C: secp256k1::Verification>(secp: &Secp256k1<C>,
                       network: Network,
                       contract: &[u8],
                       keys: &[PublicKey],
-                      template: &Template)
+                      template: &Template,
+                      chain: Blockchain)
                       -> Result<address::Address, Error> {
     let keys = tweak_keys(secp, keys, contract);
     let script = template.to_script(&keys)?;
+
+    let payload = address::Payload::ScriptHash(
+        ScriptHash::hash(&script[..])
+    );
+    let prefix = Prefix::from_payload(&payload, network, chain);
+
     Ok(address::Address {
         network: network,
-        payload: address::Payload::ScriptHash(
-            ScriptHash::hash(&script[..])
-        )
+        payload: payload,
+        prefix: prefix,
     })
 }
 
@@ -286,6 +292,8 @@ mod tests {
     use super::*;
     use PublicKey;
 
+    const CHAIN: Blockchain = Blockchain::Bitcoin;
+
     macro_rules! hex (($hex:expr) => (Vec::from_hex($hex).unwrap()));
     macro_rules! hex_key (($hex:expr) => (PublicKey::from_slice(&hex!($hex)).unwrap()));
     macro_rules! alpha_template(() => (Template::from(&hex!("55fefefefefefefe57AE")[..])));
@@ -306,7 +314,7 @@ mod tests {
         // This is the first withdraw ever, in alpha a94f95cc47b444c10449c0eed51d895e4970560c4a1a9d15d46124858abc3afe
         let contract = hex!("5032534894ffbf32c1f1c0d3089b27c98fd991d5d7329ebd7d711223e2cde5a9417a1fa3e852c576");
 
-        let addr = create_address(&secp, Network::Testnet, &contract, keys, &alpha_template!()).unwrap();
+        let addr = create_address(&secp, Network::Testnet, &contract, keys, &alpha_template!(), CHAIN).unwrap();
         assert_eq!(addr.to_string(), "2N3zXjbwdTcPsJiy8sUK9FhWJhqQCxA8Jjr".to_owned());
     }
 

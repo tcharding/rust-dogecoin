@@ -36,7 +36,7 @@ mod message_signing {
     use secp256k1::recovery::{RecoveryId, RecoverableSignature};
 
     use util::ecdsa::PublicKey;
-    use util::address::{Address, AddressType};
+    use util::address::{Address, AddressType, Blockchain};
 
     /// An error used for dealing with Bitcoin Signed Messages.
     #[derive(Debug, PartialEq, Eq)]
@@ -154,7 +154,9 @@ mod message_signing {
             let pubkey = self.recover_pubkey(&secp_ctx, msg_hash)?;
             Ok(match address.address_type() {
                 Some(AddressType::P2pkh) => {
-                    *address == Address::p2pkh(&pubkey, address.network)
+                    let addr = Address::p2pkh(&pubkey, address.network, Blockchain::Bitcoin);
+                    // We don't call == on the addresses directly so as not to compare the chain.
+                    address.payload ==  addr.payload && address.network == addr.network
                 }
                 Some(AddressType::P2sh) => false,
                 Some(AddressType::P2wpkh) => false,
