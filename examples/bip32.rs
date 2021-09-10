@@ -9,7 +9,9 @@ use bitcoin::util::bip32::ExtendedPrivKey;
 use bitcoin::util::bip32::ExtendedPubKey;
 use bitcoin::util::bip32::DerivationPath;
 use bitcoin::util::bip32::ChildNumber;
-use bitcoin::util::address::Address;
+use bitcoin::util::address::{Blockchain, Address};
+
+const CHAIN: Blockchain = Blockchain::Bitcoin;
 
 fn main() {
     // This example derives root xprv
@@ -55,7 +57,7 @@ fn main() {
     let public_key = xpub.derive_pub(&secp, &vec![zero, zero])
                          .unwrap()
                          .public_key;
-    let address = Address::p2wpkh(&public_key, network).unwrap();
+    let address = Address::p2wpkh(&public_key, network, CHAIN).unwrap();
     println!("First receiving address: {}", address);
 
 }

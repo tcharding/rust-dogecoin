@@ -273,16 +273,18 @@ mod tests {
     use blockdata::transaction::Transaction;
     use consensus::encode::deserialize;
     use network::constants::Network;
-    use util::address::Address;
+    use util::address::{Address, Blockchain};
     use util::ecdsa::PublicKey;
     use hashes::hex::FromHex;
 
     use super::*;
 
+    const CHAIN: Blockchain = Blockchain::Bitcoin;
+
     fn p2pkh_hex(pk: &str) -> Script {
         let pk = Vec::from_hex(pk).unwrap();
         let pk = PublicKey::from_slice(pk.as_slice()).unwrap();
-        let witness_script = Address::p2pkh(&pk, Network::Bitcoin).script_pubkey();
+        let witness_script = Address::p2pkh(&pk, Network::Bitcoin, CHAIN).script_pubkey();
         witness_script
     }
 

@@ -82,7 +82,7 @@ pub use blockdata::transaction::SigHashType;
 pub use consensus::encode::VarInt;
 pub use network::constants::Network;
 pub use util::Error;
-pub use util::address::Address;
+pub use util::address::{Address, Blockchain};
 pub use util::address::AddressType;
 pub use util::amount::Amount;
 pub use util::amount::Denomination;

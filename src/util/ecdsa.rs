@@ -405,7 +405,9 @@ mod tests {
     use hashes::hex::ToHex;
     use network::constants::Network::Testnet;
     use network::constants::Network::Bitcoin;
-    use util::address::Address;
+    use util::address::{Blockchain, Address};
+
+    const CHAIN: Blockchain = Blockchain::Bitcoin;
 
     #[test]
     fn test_key_derivation() {
@@ -416,7 +418,7 @@ mod tests {
         assert_eq!(&sk.to_wif(), "cVt4o7BGAig1UXywgGSmARhxMdzP5qvQsxKkSsc1XEkw3tDTQFpy");
 
         let secp = Secp256k1::new();
-        let pk = Address::p2pkh(&sk.public_key(&secp), sk.network);
+        let pk = Address::p2pkh(&sk.public_key(&secp), sk.network, CHAIN);
         assert_eq!(&pk.to_string(), "mqwpxxvfv3QbM8PU8uBx2jaNt9btQqvQNx");
 
         // test string conversion
@@ -436,7 +438,7 @@ mod tests {
         assert_eq!(pk.compressed, false);
         assert_eq!(&pk.to_string(), "042e58afe51f9ed8ad3cc7897f634d881fdbe49a81564629ded8156bebd2ffd1af191923a2964c177f5b5923ae500fca49e99492d534aa3759d6b25a8bc971b133");
         assert_eq!(pk, PublicKey::from_str("042e58afe51f9ed8ad3cc7897f634d881fdbe49a81564629ded8156bebd2ffd1af191923a2964c177f5b5923ae500fca49e99492d534aa3759d6b25a8bc971b133").unwrap());
-        let addr = Address::p2pkh(&pk, sk.network);
+        let addr = Address::p2pkh(&pk, sk.network, CHAIN);
         assert_eq!(&addr.to_string(), "1GhQvF6dL8xa6wBxLnWmHcQsurx9RxiMc8");
         pk.compressed = true;
         assert_eq!(&pk.to_string(), "032e58afe51f9ed8ad3cc7897f634d881fdbe49a81564629ded8156bebd2ffd1af");
