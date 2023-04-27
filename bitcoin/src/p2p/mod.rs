@@ -30,7 +30,7 @@ use io::{BufRead, Write};
 use crate::consensus::encode::{self, Decodable, Encodable};
 use crate::consensus::Params;
 use crate::prelude::*;
-use crate::Network;
+use crate::network::{UnknownNetworkError, Network};
 
 #[rustfmt::skip]
 #[doc(inline)]
@@ -229,7 +229,7 @@ impl Magic {
     pub fn to_bytes(self) -> [u8; 4] { self.0 }
 
     /// Returns the magic bytes for the network defined by `params`.
-    pub fn from_params(params: impl AsRef<Params>) -> Self { params.as_ref().network.into() }
+    pub fn from_params(params: impl AsRef<Params>) -> Result<Self, UnknownNetworkError> { params.as_ref().network.try_into() }
 }
 
 impl FromStr for Magic {
@@ -245,12 +245,15 @@ impl FromStr for Magic {
 
 macro_rules! generate_network_magic_conversion {
     ($(Network::$network:ident => Magic::$magic:ident,)*) => {
-        impl From<Network> for Magic {
-            fn from(network: Network) -> Magic {
+        impl TryFrom<Network> for Magic {
+            type Error = UnknownNetworkError;
+
+            fn try_from(network: Network) -> Result<Magic, UnknownNetworkError> {
                 match network {
                     $(
-                        Network::$network => Magic::$magic,
+                        Network::$network => Ok(Magic::$magic),
                     )*
+                    _ => Err(UnknownNetworkError::new(network)),
                 }
             }
         }

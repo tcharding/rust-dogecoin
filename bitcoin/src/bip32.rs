@@ -5,6 +5,7 @@
 //! Implementation of BIP32 hierarchical deterministic wallets, as defined
 //! at <https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki>.
 
+use core::convert::AsRef;
 use core::ops::Index;
 use core::str::FromStr;
 use core::{fmt, slice};
