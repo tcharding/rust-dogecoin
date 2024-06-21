@@ -4,8 +4,7 @@
 
 use core::ops::{Deref, DerefMut};
 
-#[allow(unused)]
-use crate::prelude::*;
+use crate::prelude::{Borrow, BorrowMut};
 
 #[rustfmt::skip]                // Keep public re-exports separate.
 #[doc(inline)]
@@ -19,8 +18,7 @@ mod primitive {
     };
 
     use super::PushBytesError;
-    #[allow(unused)]
-    use crate::prelude::*;
+    use crate::prelude::{ToOwned, Vec};
     use crate::script::{scriptint_parse, Error};
 
     #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
