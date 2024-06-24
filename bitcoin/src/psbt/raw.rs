@@ -7,14 +7,15 @@
 
 use core::fmt;
 
+use hex::DisplayHex;
 use io::{BufRead, Write};
 
 use super::serialize::{Deserialize, Serialize};
 use crate::consensus::encode::{
     self, deserialize, serialize, Decodable, Encodable, ReadExt, VarInt, WriteExt, MAX_VEC_SIZE,
 };
-use crate::prelude::{DisplayHex, Vec};
 use crate::psbt::Error;
+use crate::Vec;
 
 /// A PSBT key in its raw byte form.
 #[derive(Debug, PartialEq, Hash, Eq, Clone, Ord, PartialOrd)]

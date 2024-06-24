@@ -17,9 +17,8 @@ use crate::consensus::{encode, Decodable, Encodable, Params};
 use crate::internal_macros::{impl_consensus_encoding, impl_hashencode};
 use crate::merkle_tree::{MerkleNode as _, TxMerkleNode, WitnessMerkleNode};
 use crate::pow::{CompactTarget, Target, Work};
-use crate::prelude::Vec;
 use crate::transaction::{Transaction, Wtxid};
-use crate::{script, VarInt};
+use crate::{script, VarInt, Vec};
 
 hashes::hash_newtype! {
     /// A bitcoin block hash.

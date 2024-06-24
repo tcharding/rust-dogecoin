@@ -6,9 +6,9 @@ use internals::write_err;
 
 use crate::bip32::Xpub;
 use crate::consensus::encode;
-use crate::prelude::Box;
 use crate::psbt::raw;
 use crate::transaction::Transaction;
+use crate::Box;
 
 /// Enum for marking psbt hash error.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]

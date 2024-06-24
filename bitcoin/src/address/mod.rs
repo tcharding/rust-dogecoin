@@ -45,13 +45,13 @@ use crate::crypto::key::{
     CompressedPublicKey, PubkeyHash, PublicKey, TweakedPublicKey, UntweakedPublicKey,
 };
 use crate::network::{Network, NetworkKind};
-use crate::prelude::{String, ToOwned};
 use crate::script::witness_program::WitnessProgram;
 use crate::script::witness_version::WitnessVersion;
 use crate::script::{
     self, RedeemScriptSizeError, Script, ScriptBuf, ScriptHash, WScriptHash, WitnessScriptSizeError,
 };
 use crate::taproot::TapNodeHash;
+use crate::{String, ToOwned};
 
 #[rustfmt::skip]                // Keep public re-exports separate.
 #[doc(inline)]

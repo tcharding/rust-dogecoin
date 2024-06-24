@@ -18,6 +18,7 @@ use core::{fmt, mem};
 
 use hashes::{sha256, sha256d, Hash};
 use hex::error::{InvalidCharError, OddLengthStringError};
+use hex::DisplayHex;
 use internals::write_err;
 use io::{BufRead, Cursor, Read, Write};
 
@@ -31,9 +32,9 @@ use crate::p2p::{
     address::{AddrV2Message, Address},
     message_blockdata::Inventory,
 };
-use crate::prelude::{Box, Cow, DisplayHex, rc, String, sync, Vec};
 use crate::taproot::TapLeafHash;
 use crate::transaction::{Transaction, TxIn, TxOut};
+use crate::{rc, sync, Box, Cow, String, Vec};
 
 /// Encoding error.
 #[derive(Debug)]

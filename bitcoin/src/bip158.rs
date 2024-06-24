@@ -48,9 +48,9 @@ use crate::block::{Block, BlockHash};
 use crate::consensus::encode::VarInt;
 use crate::consensus::{Decodable, Encodable};
 use crate::internal_macros::impl_hashencode;
-use crate::prelude::{Borrow, BTreeSet, Vec};
 use crate::script::Script;
 use crate::transaction::OutPoint;
+use crate::{BTreeSet, Borrow, Vec};
 
 /// Golomb encoding parameter as in BIP-158, see also https://gist.github.com/sipa/576d5f09c3b86c3b1b75598d799fc845
 const P: u8 = 19;

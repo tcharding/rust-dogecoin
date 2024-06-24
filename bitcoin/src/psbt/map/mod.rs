@@ -4,9 +4,9 @@ mod global;
 mod input;
 mod output;
 
-use crate::prelude::Vec;
 use crate::psbt::raw;
 use crate::psbt::serialize::Serialize;
+use crate::Vec;
 
 #[rustfmt::skip]                // Keep public re-exports separate.
 #[doc(inline)]

@@ -4,7 +4,7 @@
 
 use core::ops::{Deref, DerefMut};
 
-use crate::prelude::{Borrow, BorrowMut};
+use crate::{Borrow, BorrowMut};
 
 #[rustfmt::skip]                // Keep public re-exports separate.
 #[doc(inline)]
@@ -18,8 +18,8 @@ mod primitive {
     };
 
     use super::PushBytesError;
-    use crate::prelude::{ToOwned, Vec};
     use crate::script::{scriptint_parse, Error};
+    use crate::{ToOwned, Vec};
 
     #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
     fn check_limit(_: usize) -> Result<(), PushBytesError> { Ok(()) }

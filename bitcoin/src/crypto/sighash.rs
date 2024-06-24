@@ -18,10 +18,12 @@ use internals::write_err;
 use io::Write;
 
 use crate::consensus::{encode, Encodable};
-use crate::prelude::{Borrow, BorrowMut, String, ToOwned, Vec};
 use crate::taproot::{LeafVersion, TapLeafHash, TAPROOT_ANNEX_PREFIX};
 use crate::witness::Witness;
-use crate::{transaction, Amount, Script, ScriptBuf, Sequence, Transaction, TxIn, TxOut};
+use crate::{
+    transaction, Amount, Borrow, BorrowMut, Script, ScriptBuf, Sequence, String, ToOwned,
+    Transaction, TxIn, TxOut, Vec,
+};
 
 /// Used for signature hash for invalid use of SIGHASH_SINGLE.
 #[rustfmt::skip]

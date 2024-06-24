@@ -65,6 +65,7 @@ use core::fmt;
 use core::ops::{Deref, DerefMut};
 
 use hashes::{hash160, sha256};
+use hex::DisplayHex;
 use io::{BufRead, Write};
 
 use crate::consensus::{encode, Decodable, Encodable};
@@ -72,8 +73,7 @@ use crate::constants::{MAX_REDEEM_SCRIPT_SIZE, MAX_WITNESS_SCRIPT_SIZE};
 use crate::internal_macros::impl_asref_push_bytes;
 use crate::opcodes::all::*;
 use crate::opcodes::{self, Opcode};
-use crate::prelude::{Borrow, BorrowMut, Box, Cow, DisplayHex, ToOwned, Vec};
-use crate::OutPoint;
+use crate::{Borrow, BorrowMut, Box, Cow, OutPoint, ToOwned, Vec};
 
 #[rustfmt::skip]                // Keep public re-exports separate.
 #[doc(inline)]

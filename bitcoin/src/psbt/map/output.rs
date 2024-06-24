@@ -3,11 +3,11 @@
 use secp256k1::XOnlyPublicKey;
 
 use crate::bip32::KeySource;
-use crate::prelude::{BTreeMap, btree_map,  Vec};
 use crate::psbt::map::Map;
 use crate::psbt::{raw, Error};
 use crate::script::ScriptBuf;
 use crate::taproot::{TapLeafHash, TapTree};
+use crate::{btree_map, BTreeMap, Vec};
 
 /// Type: Redeem ScriptBuf PSBT_OUT_REDEEM_SCRIPT = 0x00
 const PSBT_OUT_REDEEM_SCRIPT: u8 = 0x00;

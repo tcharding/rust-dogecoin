@@ -14,8 +14,7 @@ use io::{BufRead, Write};
 
 use crate::consensus::encode::{self, Decodable, Encodable, VarInt};
 use crate::internal_macros::{impl_array_newtype_stringify, impl_consensus_encoding};
-use crate::prelude::Vec;
-use crate::{block, Block, BlockHash, Transaction};
+use crate::{block, Block, BlockHash, Transaction, Vec};
 
 /// A BIP-152 error
 #[derive(Debug, Clone, PartialEq, Eq)]

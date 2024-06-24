@@ -29,8 +29,7 @@ use io::{BufRead, Write};
 
 use crate::consensus::encode::{self, Decodable, Encodable};
 use crate::consensus::Params;
-use crate::prelude::{Borrow, BorrowMut, String, ToOwned};
-use crate::Network;
+use crate::{Borrow, BorrowMut, Network, String, ToOwned};
 
 #[rustfmt::skip]
 #[doc(inline)]

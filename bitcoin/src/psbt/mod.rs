@@ -24,10 +24,11 @@ use crate::bip32::{self, KeySource, Xpriv, Xpub};
 use crate::crypto::key::{PrivateKey, PublicKey};
 use crate::crypto::{ecdsa, taproot};
 use crate::key::{TapTweak, XOnlyPublicKey};
-use crate::prelude::{Borrow, Box, BTreeMap, BTreeSet, btree_map, Vec};
 use crate::sighash::{self, EcdsaSighashType, Prevouts, SighashCache};
 use crate::transaction::{self, Transaction, TxOut};
-use crate::{Amount, FeeRate, TapLeafHash, TapSighashType};
+use crate::{
+    btree_map, Amount, BTreeMap, BTreeSet, Borrow, Box, FeeRate, TapLeafHash, TapSighashType, Vec,
+};
 
 #[rustfmt::skip]                // Keep public re-exports separate.
 #[doc(inline)]

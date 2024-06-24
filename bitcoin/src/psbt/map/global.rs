@@ -5,10 +5,10 @@ use io::{BufRead, Cursor, Read};
 use crate::bip32::{ChildNumber, DerivationPath, Fingerprint, Xpub};
 use crate::consensus::encode::MAX_VEC_SIZE;
 use crate::consensus::{encode, Decodable};
-use crate::prelude::{BTreeMap, btree_map, Vec};
 use crate::psbt::map::Map;
 use crate::psbt::{raw, Error, Psbt};
 use crate::transaction::Transaction;
+use crate::{btree_map, BTreeMap, Vec};
 
 /// Type: Unsigned Transaction PSBT_GLOBAL_UNSIGNED_TX = 0x00
 const PSBT_GLOBAL_UNSIGNED_TX: u8 = 0x00;

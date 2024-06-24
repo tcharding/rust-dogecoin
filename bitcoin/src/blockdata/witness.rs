@@ -12,9 +12,8 @@ use io::{BufRead, Write};
 use crate::consensus::encode::{Error, MAX_VEC_SIZE};
 use crate::consensus::{Decodable, Encodable, WriteExt};
 use crate::crypto::ecdsa;
-use crate::prelude::Vec;
 use crate::taproot::{self, TAPROOT_ANNEX_PREFIX};
-use crate::{Script, VarInt};
+use crate::{Script, VarInt, Vec};
 
 /// The Witness is the data used to unlock bitcoin since the [segwit upgrade].
 ///
@@ -559,9 +558,9 @@ mod test {
 
     use super::*;
     use crate::consensus::{deserialize, serialize};
+    use crate::hex::DisplayHex;
     use crate::sighash::EcdsaSighashType;
     use crate::Transaction;
-    use crate::hex::DisplayHex;
 
     fn append_u32_vec(mut v: Vec<u8>, n: &[u32]) -> Vec<u8> {
         for &num in n {

@@ -18,8 +18,7 @@ use secp256k1::{Scalar, Secp256k1};
 
 use crate::consensus::Encodable;
 use crate::crypto::key::{TapTweak, TweakedPublicKey, UntweakedPublicKey, XOnlyPublicKey};
-use crate::prelude::{BinaryHeap, BTreeMap, BTreeSet, Vec};
-use crate::{Script, ScriptBuf};
+use crate::{BTreeMap, BTreeSet, BinaryHeap, Script, ScriptBuf, Vec};
 
 // Re-export these so downstream only has to use one `taproot` module.
 #[rustfmt::skip]
@@ -1460,7 +1459,7 @@ mod test {
 
     use hashes::sha256;
     use hashes::sha256t::Tag;
-    use hex::{FromHex, DisplayHex};
+    use hex::{DisplayHex, FromHex};
     use secp256k1::VerifyOnly;
 
     use super::*;

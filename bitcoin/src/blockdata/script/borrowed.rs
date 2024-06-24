@@ -5,6 +5,7 @@ use core::ops::{
     Bound, Index, Range, RangeFrom, RangeFull, RangeInclusive, RangeTo, RangeToInclusive,
 };
 
+use hex::DisplayHex;
 use secp256k1::{Secp256k1, Verification};
 
 use super::PushBytes;
@@ -13,14 +14,13 @@ use crate::key::{PublicKey, UntweakedPublicKey, WPubkeyHash};
 use crate::opcodes::all::*;
 use crate::opcodes::{self, Opcode};
 use crate::policy::DUST_RELAY_TX_FEE;
-use crate::prelude::{Box, DisplayHex, sink, String, ToOwned, Vec};
 use crate::script::witness_version::WitnessVersion;
 use crate::script::{
     bytes_to_asm_fmt, Builder, Instruction, InstructionIndices, Instructions,
     RedeemScriptSizeError, ScriptBuf, ScriptHash, WScriptHash, WitnessScriptSizeError,
 };
 use crate::taproot::{LeafVersion, TapLeafHash, TapNodeHash};
-use crate::FeeRate;
+use crate::{sink, Box, FeeRate, String, ToOwned, Vec};
 
 /// Bitcoin script slice.
 ///

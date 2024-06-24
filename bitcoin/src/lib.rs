@@ -141,28 +141,30 @@ pub use crate::{
 };
 pub use units::{BlockHeight, BlockInterval};
 
-#[rustfmt::skip]
-#[allow(unused_imports)]
-mod prelude {
-    #[cfg(all(not(feature = "std"), not(test)))]
-    pub use alloc::{string::{String, ToString}, vec::Vec, boxed::Box, borrow::{Borrow, BorrowMut, Cow, ToOwned}, slice, rc};
+#[rustfmt::skip]                // Keep prelude type imports separate.
+#[cfg(all(not(feature = "std"), not(test), any(not(rust_v_1_60), target_has_atomic = "ptr")))]
+pub(crate) use alloc::sync;
+#[cfg(all(not(feature = "std"), not(test)))]
+pub(crate) use alloc::{
+    borrow::{Borrow, BorrowMut, Cow, ToOwned},
+    boxed::Box,
+    collections::{btree_map, BTreeMap, BTreeSet, BinaryHeap},
+    rc, slice,
+    string::{String, ToString},
+    vec::Vec,
+};
+#[cfg(any(feature = "std", test))]
+pub(crate) use std::{
+    borrow::{Borrow, BorrowMut, Cow, ToOwned},
+    boxed::Box,
+    collections::{btree_map, BTreeMap, BTreeSet, BinaryHeap},
+    rc,
+    string::{String, ToString},
+    sync,
+    vec::Vec,
+};
 
-    #[cfg(all(not(feature = "std"), not(test), any(not(rust_v_1_60), target_has_atomic = "ptr")))]
-    pub use alloc::sync;
-
-    #[cfg(any(feature = "std", test))]
-    pub use std::{string::{String, ToString}, vec::Vec, boxed::Box, borrow::{Borrow, BorrowMut, Cow, ToOwned}, rc, sync};
-
-    #[cfg(all(not(feature = "std"), not(test)))]
-    pub use alloc::collections::{BTreeMap, BTreeSet, btree_map, BinaryHeap};
-
-    #[cfg(any(feature = "std", test))]
-    pub use std::collections::{BTreeMap, BTreeSet, btree_map, BinaryHeap};
-
-    pub use crate::io::sink;
-
-    pub use hex::DisplayHex;
-}
+pub(crate) use crate::io::sink;
 
 pub mod amount {
     //! Bitcoin amounts.

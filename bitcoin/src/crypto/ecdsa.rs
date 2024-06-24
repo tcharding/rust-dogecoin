@@ -7,13 +7,13 @@
 use core::str::FromStr;
 use core::{fmt, iter};
 
-use hex::FromHex;
+use hex::{DisplayHex, FromHex};
 use internals::write_err;
 use io::Write;
 
-use crate::prelude::{DisplayHex, Vec};
 use crate::script::PushBytes;
 use crate::sighash::{EcdsaSighashType, NonStandardSighashTypeError};
+use crate::Vec;
 
 const MAX_SIG_LEN: usize = 73;
 

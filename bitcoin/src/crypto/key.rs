@@ -10,7 +10,7 @@ use core::ops;
 use core::str::FromStr;
 
 use hashes::hash160;
-use hex::{FromHex, HexToArrayError};
+use hex::{DisplayHex, FromHex, HexToArrayError};
 use internals::array_vec::ArrayVec;
 use internals::write_err;
 use io::{Read, Write};
@@ -18,9 +18,9 @@ use io::{Read, Write};
 use crate::crypto::ecdsa;
 use crate::internal_macros::impl_asref_push_bytes;
 use crate::network::NetworkKind;
-use crate::prelude::{DisplayHex,  String, Vec};
 use crate::script::ScriptBuf;
 use crate::taproot::{TapNodeHash, TapTweakHash};
+use crate::{String, Vec};
 
 #[rustfmt::skip]                // Keep public re-exports separate.
 pub use secp256k1::{constants, Keypair, Parity, Secp256k1, Verification, XOnlyPublicKey};
