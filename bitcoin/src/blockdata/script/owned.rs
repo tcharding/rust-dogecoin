@@ -110,6 +110,8 @@ impl ScriptBuf {
     pub fn extend_from_slice(&mut self, other: &[u8]) { self.0.extend_from_slice(other) }
 }
 
+mod tmp_pub {
+    use super::*;
 impl ScriptBuf {
     /// Creates a new script builder
     pub fn builder() -> Builder { Builder::new() }
@@ -172,7 +174,10 @@ impl ScriptBuf {
     /// multiple times.
     pub fn scan_and_push_verify(&mut self) { self.push_verify(self.last_opcode()); }
 }
+}
 
+mod tmp_priv {
+    use super::*;
 impl ScriptBuf {
     /// Pushes the slice without reserving
     pub(in crate::blockdata::script) fn push_slice_no_opt(&mut self, data: &PushBytes) {
@@ -227,6 +232,7 @@ impl ScriptBuf {
             None => self.push_opcode(OP_VERIFY),
         }
     }
+}
 }
 
 impl<'a> core::iter::FromIterator<Instruction<'a>> for ScriptBuf {
