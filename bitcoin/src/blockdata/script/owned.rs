@@ -87,6 +87,27 @@ impl ScriptBuf {
         let rw = Box::into_raw(self.0.into_boxed_slice()) as *mut Script;
         unsafe { Box::from_raw(rw) }
     }
+
+    /// Pushes `n` onto the script.
+    ///
+    /// Only meant for usage by the `bitcoin::script::ScriptBufExt` trait, consider using the API
+    /// provided by that trait.
+    #[doc(hidden)]
+    pub fn push(&mut self, n: u8) { self.0.push(n) }
+
+    /// Pops the last byte from the script if there is one.
+    ///
+    /// Only meant for usage by the `bitcoin::script::ScriptBufExt` trait, consider using the API
+    /// provided by that trait.
+    #[doc(hidden)]
+    pub fn pop(&mut self) -> Option<u8> { self.0.pop() }
+
+    /// Extends the script with bytes from `other`.
+    ///
+    /// Only meant for usage by the `bitcoin::script::ScriptBufExt` trait, consider using the API
+    /// provided by that trait.
+    #[doc(hidden)]
+    pub fn extend_from_slice(&mut self, other: &[u8]) { self.0.extend_from_slice(other) }
 }
 
 impl ScriptBuf {
@@ -105,7 +126,7 @@ impl ScriptBuf {
     }
 
     /// Adds a single opcode to the script.
-    pub fn push_opcode(&mut self, data: Opcode) { self.0.push(data.to_u8()); }
+    pub fn push_opcode(&mut self, data: Opcode) { self.push(data.to_u8()); }
 
     /// Adds instructions to push some arbitrary data onto the stack.
     pub fn push_slice<T: AsRef<PushBytes>>(&mut self, data: T) {
@@ -119,28 +140,28 @@ impl ScriptBuf {
         // Start with a PUSH opcode
         match data.len().to_u64() {
             n if n < opcodes::Ordinary::OP_PUSHDATA1 as u64 => {
-                self.0.push(n as u8);
+                self.push(n as u8);
             }
             n if n < 0x100 => {
-                self.0.push(opcodes::Ordinary::OP_PUSHDATA1.to_u8());
-                self.0.push(n as u8);
+                self.push(opcodes::Ordinary::OP_PUSHDATA1.to_u8());
+                self.push(n as u8);
             }
             n if n < 0x10000 => {
-                self.0.push(opcodes::Ordinary::OP_PUSHDATA2.to_u8());
-                self.0.push((n % 0x100) as u8);
-                self.0.push((n / 0x100) as u8);
+                self.push(opcodes::Ordinary::OP_PUSHDATA2.to_u8());
+                self.push((n % 0x100) as u8);
+                self.push((n / 0x100) as u8);
             }
             // `PushBytes` enforces len < 0x100000000
             n => {
-                self.0.push(opcodes::Ordinary::OP_PUSHDATA4.to_u8());
-                self.0.push((n % 0x100) as u8);
-                self.0.push(((n / 0x100) % 0x100) as u8);
-                self.0.push(((n / 0x10000) % 0x100) as u8);
-                self.0.push((n / 0x1000000) as u8);
+                self.push(opcodes::Ordinary::OP_PUSHDATA4.to_u8());
+                self.push((n % 0x100) as u8);
+                self.push(((n / 0x100) % 0x100) as u8);
+                self.push(((n / 0x10000) % 0x100) as u8);
+                self.push((n / 0x1000000) as u8);
             }
         }
         // Then push the raw bytes
-        self.0.extend_from_slice(data.as_bytes());
+        self.extend_from_slice(data.as_bytes());
     }
 
     /// Computes the sum of `len` and the length of an appropriate push opcode.
@@ -198,7 +219,7 @@ impl ScriptBuf {
     pub(in crate::blockdata::script) fn push_verify(&mut self, last_opcode: Option<Opcode>) {
         match opcode_to_verify(last_opcode) {
             Some(opcode) => {
-                self.0.pop();
+                self.pop();
                 self.push_opcode(opcode);
             }
             None => self.push_opcode(OP_VERIFY),
