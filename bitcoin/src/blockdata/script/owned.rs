@@ -87,27 +87,6 @@ impl ScriptBuf {
         let rw = Box::into_raw(self.0.into_boxed_slice()) as *mut Script;
         unsafe { Box::from_raw(rw) }
     }
-
-    /// Pushes `n` onto the script.
-    ///
-    /// Only meant for usage by the `bitcoin::script::ScriptBufExt` trait, consider using the API
-    /// provided by that trait.
-    #[doc(hidden)]
-    pub fn push(&mut self, n: u8) { self.0.push(n) }
-
-    /// Pops the last byte from the script if there is one.
-    ///
-    /// Only meant for usage by the `bitcoin::script::ScriptBufExt` trait, consider using the API
-    /// provided by that trait.
-    #[doc(hidden)]
-    pub fn pop(&mut self) -> Option<u8> { self.0.pop() }
-
-    /// Extends the script with bytes from `other`.
-    ///
-    /// Only meant for usage by the `bitcoin::script::ScriptBufExt` trait, consider using the API
-    /// provided by that trait.
-    #[doc(hidden)]
-    pub fn extend_from_slice(&mut self, other: &[u8]) { self.0.extend_from_slice(other) }
 }
 
 crate::internal_macros::define_extension_trait! {
@@ -128,7 +107,7 @@ crate::internal_macros::define_extension_trait! {
         }
 
         /// Adds a single opcode to the script.
-        fn push_opcode(&mut self, data: Opcode) { self.push(data.to_u8()); }
+        fn push_opcode(&mut self, data: Opcode) { self.as_byte_vec().push(data.to_u8()); }
 
         /// Adds instructions to push some arbitrary data onto the stack.
         fn push_slice(&mut self, data: impl AsRef<PushBytes>) {
@@ -176,35 +155,72 @@ crate::internal_macros::define_extension_trait! {
     }
 }
 
+/// Pretends that this is a mutable reference to [`ScriptBuf`]'s internal buffer.
+///
+/// In reality the backing `Vec<u8>` is swapped with an empty one and this is holding both the
+/// reference and the vec. The vec is put back when this drops so it also covers paics. (But not
+/// leaks, which is OK since we never leak.)
+pub(crate) struct ScriptBufAsVec<'a>(&'a mut ScriptBuf, Vec<u8>);
+
+impl<'a> core::ops::Deref for ScriptBufAsVec<'a> {
+    type Target = Vec<u8>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.1
+    }
+}
+
+impl<'a> core::ops::DerefMut for ScriptBufAsVec<'a> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.1
+    }
+}
+
+impl<'a> Drop for ScriptBufAsVec<'a> {
+    fn drop(&mut self) {
+        let vec = core::mem::take(&mut self.1);
+        *(self.0) = ScriptBuf::from_bytes(vec);
+    }
+}
+
 crate::internal_macros::define_extension_trait! {
     pub(crate) trait ScriptBufExtPriv impl for ScriptBuf {
+        /// Pretends to convert `&mut ScriptBuf` to `&mut Vec<u8>` so that it can be modified.
+        ///
+        /// Note: if the returned value leaks the original `ScriptBuf` will become empty.
+        fn as_byte_vec(&mut self) -> ScriptBufAsVec<'_> {
+            let vec = core::mem::take(self).into_bytes();
+            ScriptBufAsVec(self, vec)
+        }
+
         /// Pushes the slice without reserving
         fn push_slice_no_opt(&mut self, data: &PushBytes) {
+            let mut this = self.as_byte_vec();
             // Start with a PUSH opcode
             match data.len().to_u64() {
                 n if n < opcodes::Ordinary::OP_PUSHDATA1 as u64 => {
-                    self.push(n as u8);
+                    this.push(n as u8);
                 }
                 n if n < 0x100 => {
-                    self.push(opcodes::Ordinary::OP_PUSHDATA1.to_u8());
-                    self.push(n as u8);
+                    this.push(opcodes::Ordinary::OP_PUSHDATA1.to_u8());
+                    this.push(n as u8);
                 }
                 n if n < 0x10000 => {
-                    self.push(opcodes::Ordinary::OP_PUSHDATA2.to_u8());
-                    self.push((n % 0x100) as u8);
-                    self.push((n / 0x100) as u8);
+                    this.push(opcodes::Ordinary::OP_PUSHDATA2.to_u8());
+                    this.push((n % 0x100) as u8);
+                    this.push((n / 0x100) as u8);
                 }
                 // `PushBytes` enforces len < 0x100000000
                 n => {
-                    self.push(opcodes::Ordinary::OP_PUSHDATA4.to_u8());
-                    self.push((n % 0x100) as u8);
-                    self.push(((n / 0x100) % 0x100) as u8);
-                    self.push(((n / 0x10000) % 0x100) as u8);
-                    self.push((n / 0x1000000) as u8);
+                    this.push(opcodes::Ordinary::OP_PUSHDATA4.to_u8());
+                    this.push((n % 0x100) as u8);
+                    this.push(((n / 0x100) % 0x100) as u8);
+                    this.push(((n / 0x10000) % 0x100) as u8);
+                    this.push((n / 0x1000000) as u8);
                 }
             }
             // Then push the raw bytes
-            self.extend_from_slice(data.as_bytes());
+            this.extend_from_slice(data.as_bytes());
         }
 
         /// Computes the sum of `len` and the length of an appropriate push opcode.
@@ -225,7 +241,7 @@ crate::internal_macros::define_extension_trait! {
         fn push_verify(&mut self, last_opcode: Option<Opcode>) {
             match opcode_to_verify(last_opcode) {
                 Some(opcode) => {
-                    self.pop();
+                    self.as_byte_vec().pop();
                     self.push_opcode(opcode);
                 }
                 None => self.push_opcode(OP_VERIFY),
