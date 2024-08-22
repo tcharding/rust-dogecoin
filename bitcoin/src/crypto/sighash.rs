@@ -463,10 +463,24 @@ impl EcdsaSighashType {
         }
     }
 
+    /// Converts [`EcdsaSighashType`] to a `u8` sighash flag.
+    ///
+    /// The returned value is guaranteed to be a valid according to standardness rules.
+    pub fn to_u8(self) -> u8 { self as u8 }
+
     /// Converts [`EcdsaSighashType`] to a `u32` sighash flag.
     ///
     /// The returned value is guaranteed to be a valid according to standardness rules.
     pub fn to_u32(self) -> u32 { self as u32 }
+}
+
+impl From<EcdsaSighashType> for u8 {
+    // Cast ok because sighash types are only one byte.
+    fn from(s: EcdsaSighashType) -> u8 { s.to_u8() }
+}
+
+impl From<EcdsaSighashType> for u32 {
+    fn from(s: EcdsaSighashType) -> u32 { s.to_u32() }
 }
 
 impl From<EcdsaSighashType> for TapSighashType {
@@ -515,6 +529,25 @@ impl TapSighashType {
             x => return Err(InvalidSighashTypeError(x as u32)), // Cast ok, u8 -> u32
         })
     }
+
+    /// Converts [`EcdsaSighashType`] to a `u8` sighash flag.
+    ///
+    /// The returned value is guaranteed to be a valid according to standardness rules.
+    pub fn to_u8(self) -> u8 { self as u8 }
+
+    /// Converts [`EcdsaSighashType`] to a `u32` sighash flag.
+    ///
+    /// The returned value is guaranteed to be a valid according to standardness rules.
+    pub fn to_u32(self) -> u32 { self as u32 }
+}
+
+impl From<TapSighashType> for u8 {
+    // Cast ok because sighash types are only one byte.
+    fn from(s: TapSighashType) -> u8 { s.to_u8() }
+}
+
+impl From<TapSighashType> for u32 {
+    fn from(s: TapSighashType) -> u32 { s.to_u32() }
 }
 
 /// Integer is not a consensus valid sighash type.
