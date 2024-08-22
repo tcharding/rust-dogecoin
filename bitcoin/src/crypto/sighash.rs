@@ -907,18 +907,18 @@ impl<R: Borrow<Transaction>> SighashCache<R> {
     ///
     /// This function can't handle the SIGHASH_SINGLE bug internally, so it returns [`EncodeSigningDataResult`]
     /// that must be handled by the caller (see [`EncodeSigningDataResult::is_sighash_single_bug`]).
-    pub fn legacy_encode_signing_data_to<W: Write + ?Sized, U: Into<u32>>(
+    pub fn legacy_encode_signing_data_to<W: Write + ?Sized>(
         &self,
         writer: &mut W,
         input_index: usize,
         script_pubkey: &Script,
-        sighash_type: U,
+        sighash_type: EcdsaSighashType,
     ) -> EncodeSigningDataResult<SigningDataError<transaction::InputsIndexError>> {
         // Validate input_index.
         if let Err(e) = self.tx.borrow().tx_in(input_index) {
             return EncodeSigningDataResult::WriteResult(Err(SigningDataError::Sighash(e)));
         }
-        let sighash_type: u32 = sighash_type.into();
+        let sighash_type: u32 = sighash_type.to_u32();
 
         if is_invalid_use_of_sighash_single(
             sighash_type,
@@ -1035,7 +1035,7 @@ impl<R: Borrow<Transaction>> SighashCache<R> {
         &self,
         input_index: usize,
         script_pubkey: &Script,
-        sighash_type: u32,
+        sighash_type: EcdsaSighashType,
     ) -> Result<LegacySighash, transaction::InputsIndexError> {
         let mut engine = LegacySighash::engine();
         match self
@@ -1476,7 +1476,7 @@ mod tests {
 
     #[test]
     fn sighash_single_bug() {
-        const SIGHASH_SINGLE: u32 = 3;
+        const SIGHASH_SINGLE: EcdsaSighashType = EcdsaSighashType::from_consensus(3);
 
         // We need a tx with more inputs than outputs.
         let tx = Transaction {
@@ -1505,7 +1505,7 @@ mod tests {
             tx: &str,
             script: &str,
             input_index: usize,
-            hash_type: i64,
+            hash_type: EcdsaSighashType,
             expected_result: &str,
         ) {
             let tx: Transaction = deserialize(&Vec::from_hex(tx).unwrap()[..]).unwrap();
@@ -1515,7 +1515,7 @@ mod tests {
             let want = LegacySighash::from_slice(&raw_expected[..]).unwrap();
 
             let cache = SighashCache::new(&tx);
-            let got = cache.legacy_signature_hash(input_index, &script, hash_type as u32).unwrap();
+            let got = cache.legacy_signature_hash(input_index, &script, hash_type).unwrap();
 
             assert_eq!(got, want);
         }
@@ -1530,7 +1530,7 @@ mod tests {
             let tx = t.get(0).unwrap().as_str().unwrap();
             let script = t.get(1).unwrap().as_str().unwrap_or("");
             let input_index = t.get(2).unwrap().as_u64().unwrap();
-            let hash_type = t.get(3).unwrap().as_i64().unwrap();
+            let hash_type = EcdsaSighashType::from_consensus(t.get(3).unwrap().as_i64().unwrap() as u32);
             let expected_sighash = t.get(4).unwrap().as_str().unwrap();
             run_test_sighash(tx, script, input_index as usize, hash_type, expected_sighash);
         }
@@ -1715,7 +1715,7 @@ mod tests {
             }))
         );
         assert_eq!(
-            c.legacy_signature_hash(10, Script::new(), 0u32),
+            c.legacy_signature_hash(10, Script::new(), EcdsaSighashType::from_consensus(0)),
             Err(InputsIndexError(IndexOutOfBoundsError {
                 index: 10,
                 length: 1
