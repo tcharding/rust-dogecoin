@@ -117,7 +117,7 @@ pub mod taproot;
 // Re-export all modules from `blockdata`, users should never need to use `blockdata` directly.
 #[doc(inline)]
 pub use primitives::{
-    block::{BlockHash, Header as BlockHeader, WitnessCommitment},
+    block::{Block, BlockHash, Header as BlockHeader, WitnessCommitment},
     merkle_tree::{TxMerkleNode, WitnessMerkleNode},
     opcodes::Opcode,
     pow::CompactTarget,
@@ -155,7 +155,6 @@ pub use crate::{
 #[doc(inline)]
 pub use crate::{
     // Re-export types and modules from `blockdata` that don't come from `primitives`.
-    blockdata::block::Block, // TODO: Move this after `Block` is in primitives.
     blockdata::locktime::{absolute, relative},
     blockdata::script::witness_program::{self, WitnessProgram},
     blockdata::script::witness_version::{self, WitnessVersion},
