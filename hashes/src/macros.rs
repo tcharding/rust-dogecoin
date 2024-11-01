@@ -196,7 +196,7 @@ macro_rules! hash_newtype {
         impl $crate::_export::_core::str::FromStr for $newtype {
             type Err = $crate::hex::HexToArrayError;
             fn from_str(s: &str) -> $crate::_export::_core::result::Result<$newtype, Self::Err> {
-                use $crate::{hex::FromHex};
+                use $crate::hex::FromHex;
 
                 let mut bytes = <[u8; <Self as $crate::Hash>::LEN]>::from_hex(s)?;
                 if <Self as $crate::Hash>::DISPLAY_BACKWARD {
