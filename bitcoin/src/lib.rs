@@ -114,52 +114,56 @@ pub mod psbt;
 pub mod sign_message;
 pub mod taproot;
 
-#[rustfmt::skip]                // Keep public re-exports separate.
-#[doc(inline)]
-pub use crate::{
-    address::{Address, AddressType, KnownHrp},
-    bip158::{FilterHash, FilterHeader},
-    bip32::XKeyIdentifier,
-    crypto::ecdsa,
-    crypto::key::{self, PrivateKey, PubkeyHash, PublicKey, CompressedPublicKey, WPubkeyHash, XOnlyPublicKey},
-    crypto::sighash::{self, LegacySighash, SegwitV0Sighash, TapSighash, TapSighashTag},
-    merkle_tree::MerkleBlock,
-    network::{Network, NetworkKind, TestnetVersion},
-    network::params::{self, Params},
-    pow::{Target, Work},
-    psbt::Psbt,
-    sighash::{EcdsaSighashType, TapSighashType},
-    taproot::{TapBranchTag, TapLeafHash, TapLeafTag, TapNodeHash, TapTweakHash, TapTweakTag},
-};
 // Re-export all modules from `blockdata`, users should never need to use `blockdata` directly.
 #[doc(inline)]
-pub use crate::{
-    // These modules also re-export all the respective `primitives` types.
-    blockdata::{block, constants, fee_rate, locktime, opcodes, script, transaction, weight, witness},
-    // And re-export types and modules from `blockdata` that don't come from `primitives`.
-    blockdata::block::Block, // TODO: Move this down below after it is in primitives.
-    blockdata::locktime::{absolute, relative},
-    blockdata::script::witness_program::{self, WitnessProgram},
-    blockdata::script::witness_version::{self, WitnessVersion},
-    blockdata::script::{ScriptHash, WScriptHash}, // TODO: Move these down below after they are in primitives.
-};
-#[doc(inline)]
 pub use primitives::{
-    block::{BlockHash, WitnessCommitment, Header as BlockHeader},
+    block::{BlockHash, Header as BlockHeader, WitnessCommitment},
     merkle_tree::{TxMerkleNode, WitnessMerkleNode},
     opcodes::Opcode,
     pow::CompactTarget,
     script::{Script, ScriptBuf},
+    sequence::Sequence,
     transaction::{OutPoint, Transaction, TxIn, TxOut, Txid, Wtxid},
     witness::Witness,
-    sequence::Sequence,
 };
 #[doc(inline)]
 pub use units::{
     amount::{Amount, Denomination, SignedAmount},
     block::{BlockHeight, BlockInterval},
     fee_rate::FeeRate,
-    weight::Weight
+    weight::Weight,
+};
+
+#[doc(inline)]
+pub use crate::{
+    address::{Address, AddressType, KnownHrp},
+    bip158::{FilterHash, FilterHeader},
+    bip32::XKeyIdentifier,
+    crypto::ecdsa,
+    crypto::key::{
+        self, CompressedPublicKey, PrivateKey, PubkeyHash, PublicKey, WPubkeyHash, XOnlyPublicKey,
+    },
+    crypto::sighash::{self, LegacySighash, SegwitV0Sighash, TapSighash, TapSighashTag},
+    merkle_tree::MerkleBlock,
+    network::params::{self, Params},
+    network::{Network, NetworkKind, TestnetVersion},
+    pow::{Target, Work},
+    psbt::Psbt,
+    sighash::{EcdsaSighashType, TapSighashType},
+    taproot::{TapBranchTag, TapLeafHash, TapLeafTag, TapNodeHash, TapTweakHash, TapTweakTag},
+};
+#[doc(inline)]
+pub use crate::{
+    // Re-export types and modules from `blockdata` that don't come from `primitives`.
+    blockdata::block::Block, // TODO: Move this after `Block` is in primitives.
+    blockdata::locktime::{absolute, relative},
+    blockdata::script::witness_program::{self, WitnessProgram},
+    blockdata::script::witness_version::{self, WitnessVersion},
+    blockdata::script::{ScriptHash, WScriptHash}, // TODO: Move these down below after they are in primitives.
+    // These modules also re-export all the respective `primitives` types.
+    blockdata::{
+        block, constants, fee_rate, locktime, opcodes, script, transaction, weight, witness,
+    },
 };
 
 #[rustfmt::skip]

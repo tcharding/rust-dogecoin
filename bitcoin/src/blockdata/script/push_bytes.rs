@@ -64,9 +64,7 @@ mod primitive {
         }
 
         /// Creates an empty `&PushBytes`.
-        pub fn empty() -> &'static Self {
-            Self::from_slice_unchecked(&[])
-        }
+        pub fn empty() -> &'static Self { Self::from_slice_unchecked(&[]) }
 
         /// Returns the underlying bytes.
         pub fn as_bytes(&self) -> &[u8] { &self.0 }
