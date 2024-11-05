@@ -215,9 +215,9 @@ impl HeaderAndShortIds {
         let siphash_keys = ShortId::calculate_siphash_keys(&block.header, nonce);
 
         let mut prefilled = Vec::with_capacity(prefill.len() + 1); // +1 for coinbase tx
-        let mut short_ids = Vec::with_capacity(block.txdata.len() - prefill.len());
+        let mut short_ids = Vec::with_capacity(block.transactions.len() - prefill.len());
         let mut last_prefill = 0;
-        for (idx, tx) in block.txdata.iter().enumerate() {
+        for (idx, tx) in block.transactions.iter().enumerate() {
             // Check if we should prefill this tx.
             let prefill_tx = if prefill.first() == Some(&idx) {
                 prefill = &prefill[1..];
@@ -389,10 +389,10 @@ impl BlockTransactions {
             transactions: {
                 let mut txs = Vec::with_capacity(request.indexes.len());
                 for idx in &request.indexes {
-                    if *idx >= block.txdata.len().to_u64() {
+                    if *idx >= block.transactions.len().to_u64() {
                         return Err(TxIndexOutOfRangeError(*idx));
                     }
-                    txs.push(block.txdata[*idx as usize].clone());
+                    txs.push(block.transactions[*idx as usize].clone());
                 }
                 txs
             },
@@ -439,7 +439,7 @@ mod test {
                 bits: CompactTarget::from_consensus(3),
                 nonce: 4,
             },
-            txdata: vec![dummy_tx(&[2]), dummy_tx(&[3]), dummy_tx(&[4])],
+            transactions: vec![dummy_tx(&[2]), dummy_tx(&[3]), dummy_tx(&[4])],
         }
     }
 
@@ -452,7 +452,7 @@ mod test {
         assert_eq!(compact.short_ids.len(), 2);
         assert_eq!(compact.prefilled_txs.len(), 1);
         assert_eq!(compact.prefilled_txs[0].idx, 0);
-        assert_eq!(&compact.prefilled_txs[0].tx, &block.txdata[0]);
+        assert_eq!(&compact.prefilled_txs[0].tx, &block.transactions[0]);
 
         let compact = HeaderAndShortIds::from_block(&block, 42, 2, &[0, 1, 2]).unwrap();
         let idxs = compact.prefilled_txs.iter().map(|t| t.idx).collect::<Vec<_>>();

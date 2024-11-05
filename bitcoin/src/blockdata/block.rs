@@ -83,7 +83,7 @@ impl Decodable for Version {
     }
 }
 
-impl_consensus_encoding!(Block, header, txdata);
+impl_consensus_encoding!(Block, header, transactions);
 
 crate::internal_macros::define_extension_trait! {
     /// Extension functionality for the [`Block`] type.
@@ -101,15 +101,15 @@ crate::internal_macros::define_extension_trait! {
             // Consists of OP_RETURN, OP_PUSHBYTES_36, and four "witness header" bytes.
             const MAGIC: [u8; 6] = [0x6a, 0x24, 0xaa, 0x21, 0xa9, 0xed];
             // Witness commitment is optional if there are no transactions using SegWit in the block.
-            if self.txdata.iter().all(|t| t.input.iter().all(|i| i.witness.is_empty())) {
+            if self.transactions.iter().all(|t| t.input.iter().all(|i| i.witness.is_empty())) {
                 return true;
             }
 
-            if self.txdata.is_empty() {
+            if self.transactions.is_empty() {
                 return false;
             }
 
-            let coinbase = &self.txdata[0];
+            let coinbase = &self.transactions[0];
             if !coinbase.is_coinbase() {
                 return false;
             }
@@ -138,7 +138,7 @@ crate::internal_macros::define_extension_trait! {
 
         /// Computes the transaction Merkle root.
         fn compute_merkle_root(&self) -> Option<TxMerkleNode> {
-            let hashes = self.txdata.iter().map(|obj| obj.compute_txid());
+            let hashes = self.transactions.iter().map(|obj| obj.compute_txid());
             TxMerkleNode::calculate_root(hashes)
         }
 
@@ -155,7 +155,7 @@ crate::internal_macros::define_extension_trait! {
 
         /// Computes the Merkle root of transactions hashed for witness.
         fn witness_root(&self) -> Option<WitnessMerkleNode> {
-            let hashes = self.txdata.iter().enumerate().map(|(i, t)| {
+            let hashes = self.transactions.iter().enumerate().map(|(i, t)| {
                 if i == 0 {
                     // Replace the first hash with zeroes.
                     Wtxid::COINBASE
@@ -182,14 +182,14 @@ crate::internal_macros::define_extension_trait! {
         fn total_size(&self) -> usize {
             let mut size = Header::SIZE;
 
-            size += compact_size::encoded_size(self.txdata.len());
-            size += self.txdata.iter().map(|tx| tx.total_size()).sum::<usize>();
+            size += compact_size::encoded_size(self.transactions.len());
+            size += self.transactions.iter().map(|tx| tx.total_size()).sum::<usize>();
 
             size
         }
 
         /// Returns the coinbase transaction, if one is present.
-        fn coinbase(&self) -> Option<&Transaction> { self.txdata.first() }
+        fn coinbase(&self) -> Option<&Transaction> { self.transactions.first() }
 
         /// Returns the block height, as encoded in the coinbase transaction according to BIP34.
         fn bip34_block_height(&self) -> Result<u64, Bip34Error> {
@@ -234,8 +234,8 @@ crate::internal_macros::define_extension_trait! {
 fn base_size(block: &Block) -> usize {
     let mut size = Header::SIZE;
 
-    size += compact_size::encoded_size(block.txdata.len());
-    size += block.txdata.iter().map(|tx| tx.base_size()).sum::<usize>();
+    size += compact_size::encoded_size(block.transactions.len());
+    size += block.transactions.iter().map(|tx| tx.base_size()).sum::<usize>();
 
     size
 }

@@ -121,8 +121,8 @@ fn bitcoin_genesis_tx(params: &Params) -> Transaction {
 /// Constructs and returns the genesis block.
 pub fn genesis_block(params: impl AsRef<Params>) -> Block {
     let params = params.as_ref();
-    let txdata = vec![bitcoin_genesis_tx(params)];
-    let hash: sha256d::Hash = txdata[0].compute_txid().into();
+    let transactions = vec![bitcoin_genesis_tx(params)];
+    let hash: sha256d::Hash = transactions[0].compute_txid().into();
     let merkle_root: crate::TxMerkleNode = hash.into();
 
     match params.network {
@@ -135,7 +135,7 @@ pub fn genesis_block(params: impl AsRef<Params>) -> Block {
                 bits: CompactTarget::from_consensus(0x1d00ffff),
                 nonce: 2083236893,
             },
-            txdata,
+            transactions,
         },
         Network::Testnet(TestnetVersion::V3) => Block {
             header: block::Header {
@@ -146,7 +146,7 @@ pub fn genesis_block(params: impl AsRef<Params>) -> Block {
                 bits: CompactTarget::from_consensus(0x1d00ffff),
                 nonce: 414098458,
             },
-            txdata,
+            transactions,
         },
         Network::Testnet(TestnetVersion::V4) => Block {
             header: block::Header {
@@ -157,7 +157,7 @@ pub fn genesis_block(params: impl AsRef<Params>) -> Block {
                 bits: CompactTarget::from_consensus(0x1d00ffff),
                 nonce: 393743547,
             },
-            txdata,
+            transactions,
         },
         Network::Signet => Block {
             header: block::Header {
@@ -168,7 +168,7 @@ pub fn genesis_block(params: impl AsRef<Params>) -> Block {
                 bits: CompactTarget::from_consensus(0x1e0377ae),
                 nonce: 52613770,
             },
-            txdata,
+            transactions,
         },
         Network::Regtest => Block {
             header: block::Header {
@@ -179,7 +179,7 @@ pub fn genesis_block(params: impl AsRef<Params>) -> Block {
                 bits: CompactTarget::from_consensus(0x207fffff),
                 nonce: 2,
             },
-            txdata,
+            transactions,
         },
     }
 }

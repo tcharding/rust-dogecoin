@@ -34,7 +34,7 @@ pub struct Block {
     /// The block header
     pub header: Header,
     /// List of transactions contained in the block
-    pub txdata: Vec<Transaction>,
+    pub transactions: Vec<Transaction>,
 }
 
 impl Block {
@@ -204,7 +204,7 @@ impl BlockHash {
 #[cfg(feature = "arbitrary")]
 impl<'a> Arbitrary<'a> for Block {
     fn arbitrary(u: &mut Unstructured<'a>) -> arbitrary::Result<Self> {
-        Ok(Block { header: Header::arbitrary(u)?, txdata: Vec::<Transaction>::arbitrary(u)? })
+        Ok(Block { header: Header::arbitrary(u)?, transactions: Vec::<Transaction>::arbitrary(u)? })
     }
 }
 

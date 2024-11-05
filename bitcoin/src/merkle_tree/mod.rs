@@ -129,7 +129,7 @@ mod tests {
         assert!(block.check_merkle_root());
 
         // Same as `block.check_merkle_root` but do it explicitly.
-        let hashes_iter = block.txdata.iter().map(|obj| obj.compute_txid());
+        let hashes_iter = block.transactions.iter().map(|obj| obj.compute_txid());
         let from_iter = TxMerkleNode::calculate_root(hashes_iter.clone());
         assert_eq!(from_iter, Some(block.header.merkle_root));
     }
