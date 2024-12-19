@@ -18,29 +18,21 @@ use crate::{FeeRate, Weight};
 
 #[test]
 fn sanity_check() {
-    assert_eq!(SignedAmount::from_sat(-100).abs(), SignedAmount::from_sat(100));
-    assert_eq!(
-        SignedAmount::from_sat(i64::MIN + 1).checked_abs().unwrap(),
-        SignedAmount::from_sat(i64::MAX)
-    );
-    assert_eq!(SignedAmount::from_sat(-100).signum(), -1);
-    assert_eq!(SignedAmount::from_sat(0).signum(), 0);
-    assert_eq!(SignedAmount::from_sat(100).signum(), 1);
-    assert_eq!(SignedAmount::from(Amount::from_sat(100)), SignedAmount::from_sat(100));
-    assert!(SignedAmount::from_sat(i64::MIN).checked_abs().is_none());
-    assert!(!SignedAmount::from_sat(-100).is_positive());
-    assert!(SignedAmount::from_sat(100).is_positive());
+    let sat = |sat| Amount::from_sat(sat).unwrap();
+    let ssat = |sat| SignedAmount::from_sat(sat).unwrap();
+
+    assert_eq!(ssat(-100).abs(), SignedAmount::from_sat_unchecked(100));
+    assert_eq!(ssat(-100).signum(), -1);
+    assert_eq!(ssat(0).signum(), 0);
+    assert_eq!(ssat(100).signum(), 1);
+    assert_eq!(SignedAmount::from(sat(100)), ssat(100));
+    assert!(!ssat(-100).is_positive());
+    assert!(ssat(100).is_positive());
 
     #[cfg(feature = "alloc")]
     {
-        assert_eq!(
-            Amount::from_float_in(0_f64, Denomination::Bitcoin).unwrap(),
-            Amount::from_sat(0)
-        );
-        assert_eq!(
-            Amount::from_float_in(2_f64, Denomination::Bitcoin).unwrap(),
-            Amount::from_sat(200_000_000)
-        );
+        assert_eq!(Amount::from_float_in(0_f64, Denomination::Bitcoin).unwrap(), sat(0));
+        assert_eq!(Amount::from_float_in(2_f64, Denomination::Bitcoin).unwrap(), sat(200_000_000));
         assert!(Amount::from_float_in(-100_f64, Denomination::Bitcoin).is_err());
     }
 }
@@ -102,8 +94,15 @@ fn from_str_zero_without_denomination() {
 
 #[test]
 fn from_int_btc() {
-    let amt = Amount::from_int_btc_const(2);
+    let amt = Amount::from_int_btc_const(2).unwrap();
     assert_eq!(Amount::from_sat_unchecked(200_000_000), amt);
+}
+
+#[test]
+fn signed_amount_try_from_amount() {
+    let ua_positive = Amount::from_sat_unchecked(123);
+    let sa_positive = SignedAmount::from(ua_positive);
+    assert_eq!(sa_positive, SignedAmount::from_sat_unchecked(123));
 }
 
 #[test]
@@ -119,8 +118,8 @@ fn amount_try_from_signed_amount() {
 
 #[test]
 fn mul_div() {
-    let sat = Amount::from_sat;
-    let ssat = SignedAmount::from_sat;
+    let sat = |sat| Amount::from_sat(sat).unwrap();
+    let ssat = |sat| SignedAmount::from_sat(sat).unwrap();
 
     assert_eq!(sat(14) * 3, sat(42));
     assert_eq!(sat(14) / 2, sat(7));
@@ -135,7 +134,7 @@ fn mul_div() {
     a %= 3;
     assert_eq!(a, sat(1));
     a *= 3;
-    assert_eq!(a, Amount::from_sat(3));
+    assert_eq!(a, sat(3));
 
     let mut b = ssat(30);
     b /= 3;
@@ -143,12 +142,12 @@ fn mul_div() {
     b %= 3;
     assert_eq!(b, ssat(1));
     b *= 3;
-    assert_eq!(b, SignedAmount::from_sat(3));
+    assert_eq!(b, ssat(3));
 }
 
 #[test]
 fn neg() {
-    let amount = -SignedAmount::from_sat(2);
+    let amount = -SignedAmount::from_sat_unchecked(2);
     assert_eq!(amount.to_sat(), -2);
 }
 
@@ -164,8 +163,8 @@ fn overflows() {
 
 #[test]
 fn checked_arithmetic() {
-    let sat = Amount::from_sat;
-    let ssat = SignedAmount::from_sat;
+    let sat = |sat| Amount::from_sat(sat).unwrap();
+    let ssat = |sat| SignedAmount::from_sat(sat).unwrap();
 
     assert_eq!(SignedAmount::MAX.checked_add(ssat(1)), None);
     assert_eq!(SignedAmount::MIN.checked_sub(ssat(1)), None);
@@ -179,27 +178,23 @@ fn checked_arithmetic() {
 #[test]
 #[allow(deprecated_in_future)]
 fn unchecked_arithmetic() {
-    assert_eq!(
-        SignedAmount::from_sat(10).unchecked_add(SignedAmount::from_sat(20)),
-        SignedAmount::from_sat(30)
-    );
-    assert_eq!(
-        SignedAmount::from_sat(50).unchecked_sub(SignedAmount::from_sat(10)),
-        SignedAmount::from_sat(40)
-    );
-    assert_eq!(Amount::from_sat(5).unchecked_add(Amount::from_sat(7)), Amount::from_sat(12));
-    assert_eq!(Amount::from_sat(10).unchecked_sub(Amount::from_sat(7)), Amount::from_sat(3));
+    let sat = |sat| Amount::from_sat(sat).unwrap();
+    let ssat = |sat| SignedAmount::from_sat(sat).unwrap();
+
+    assert_eq!(ssat(10).unchecked_add(ssat(20)), ssat(30));
+    assert_eq!(ssat(50).unchecked_sub(ssat(10)), ssat(40));
+    assert_eq!(sat(5).unchecked_add(sat(7)), sat(12));
+    assert_eq!(sat(10).unchecked_sub(sat(7)), sat(3));
 }
 
 #[test]
 fn positive_sub() {
-    assert_eq!(
-        SignedAmount::from_sat(10).positive_sub(SignedAmount::from_sat(7)).unwrap(),
-        SignedAmount::from_sat(3)
-    );
-    assert!(SignedAmount::from_sat(-10).positive_sub(SignedAmount::from_sat(7)).is_none());
-    assert!(SignedAmount::from_sat(10).positive_sub(SignedAmount::from_sat(-7)).is_none());
-    assert!(SignedAmount::from_sat(10).positive_sub(SignedAmount::from_sat(11)).is_none());
+    let ssat = |sat| SignedAmount::from_sat(sat).unwrap();
+
+    assert_eq!(ssat(10).positive_sub(ssat(7)).unwrap(), ssat(3));
+    assert!(ssat(-10).positive_sub(ssat(7)).is_none());
+    assert!(ssat(10).positive_sub(ssat(-7)).is_none());
+    assert!(ssat(10).positive_sub(ssat(11)).is_none());
 }
 
 #[cfg(feature = "alloc")]
@@ -244,8 +239,8 @@ fn floating_point() {
     use super::Denomination as D;
     let f = Amount::from_float_in;
     let sf = SignedAmount::from_float_in;
-    let sat = Amount::from_sat;
-    let ssat = SignedAmount::from_sat;
+    let sat = |sat| Amount::from_sat(sat).unwrap();
+    let ssat = |sat| SignedAmount::from_sat(sat).unwrap();
 
     assert_eq!(f(11.22, D::Bitcoin), Ok(sat(1_122_000_000)));
     assert_eq!(sf(-11.22, D::MilliBitcoin), Ok(ssat(-1_122_000)));
@@ -384,8 +379,8 @@ macro_rules! check_format_non_negative {
             #[test]
             #[cfg(feature = "alloc")]
             fn $test_name() {
-                assert_eq!(format!($format_string, Amount::from_sat($val).display_in(Denomination::$denom)), $expected);
-                assert_eq!(format!($format_string, SignedAmount::from_sat($val as i64).display_in(Denomination::$denom)), $expected);
+                assert_eq!(format!($format_string, Amount::from_sat_unchecked($val).display_in(Denomination::$denom)), $expected);
+                assert_eq!(format!($format_string, SignedAmount::from_sat_unchecked($val as i64).display_in(Denomination::$denom)), $expected);
             }
         )*
     }
@@ -397,8 +392,8 @@ macro_rules! check_format_non_negative_show_denom {
             #[test]
             #[cfg(feature = "alloc")]
             fn $test_name() {
-                assert_eq!(format!($format_string, Amount::from_sat($val).display_in(Denomination::$denom).show_denomination()), concat!($expected, $denom_suffix));
-                assert_eq!(format!($format_string, SignedAmount::from_sat($val as i64).display_in(Denomination::$denom).show_denomination()), concat!($expected, $denom_suffix));
+                assert_eq!(format!($format_string, Amount::from_sat_unchecked($val).display_in(Denomination::$denom).show_denomination()), concat!($expected, $denom_suffix));
+                assert_eq!(format!($format_string, SignedAmount::from_sat_unchecked($val as i64).display_in(Denomination::$denom).show_denomination()), concat!($expected, $denom_suffix));
             }
         )*
     }
@@ -538,15 +533,13 @@ check_format_non_negative_show_denom! {
 }
 
 #[test]
-fn unsigned_signed_conversion() {
-    let sa = SignedAmount::from_sat;
-    let ua = Amount::from_sat;
+fn test_unsigned_signed_conversion() {
+    let sa = |sat| SignedAmount::from_sat(sat).unwrap();
+    let ua = |sat| Amount::from_sat(sat).unwrap();
     let max_sats: u64 = Amount::MAX.to_sat();
 
     assert_eq!(ua(max_sats).to_signed(), sa(max_sats as i64));
-
     assert_eq!(sa(max_sats as i64).to_unsigned(), Ok(ua(max_sats)));
-
     assert_eq!(sa(max_sats as i64).to_unsigned().unwrap().to_signed(), sa(max_sats as i64));
 }
 
@@ -637,9 +630,9 @@ fn from_str() {
 fn to_from_string_in() {
     use super::Denomination as D;
     let ua_str = Amount::from_str_in;
-    let ua_sat = Amount::from_sat_unchecked;
+    let ua_sat = |sat| Amount::from_sat(sat).unwrap();
     let sa_str = SignedAmount::from_str_in;
-    let sa_sat = SignedAmount::from_sat_unchecked;
+    let sa_sat = |sat| SignedAmount::from_sat(sat).unwrap();
 
     assert_eq!("0.5", ua_sat(50).to_string_in(D::Bit));
     assert_eq!("-0.5", sa_sat(-50).to_string_in(D::Bit));
@@ -956,52 +949,6 @@ fn serde_as_str_opt() {
 }
 
 #[test]
-fn sum_amounts() {
-    let sat = Amount::from_sat;
-    let ssat = SignedAmount::from_sat;
-
-    assert_eq!([].iter().sum::<Amount>(), Amount::ZERO);
-    assert_eq!([].iter().sum::<SignedAmount>(), SignedAmount::ZERO);
-
-    let amounts = [sat(42), sat(1337), sat(21)];
-    let sum = amounts.into_iter().sum::<Amount>();
-    assert_eq!(sum, sat(1400));
-
-    let amounts = [ssat(-42), ssat(1337), ssat(21)];
-    let sum = amounts.into_iter().sum::<SignedAmount>();
-    assert_eq!(sum, ssat(1316));
-}
-
-#[test]
-fn checked_sum_amounts() {
-    let sat = Amount::from_sat;
-    let ssat = SignedAmount::from_sat;
-
-    assert_eq!([].into_iter().checked_sum(), Some(Amount::ZERO));
-    assert_eq!([].into_iter().checked_sum(), Some(SignedAmount::ZERO));
-
-    let amounts = [sat(42), sat(1337), sat(21)];
-    let sum = amounts.into_iter().checked_sum();
-    assert_eq!(sum, Some(sat(1400)));
-
-    let amounts = [sat(u64::MAX), sat(1337), sat(21)];
-    let sum = amounts.into_iter().checked_sum();
-    assert_eq!(sum, None);
-
-    let amounts = [SignedAmount::MIN, ssat(-1), ssat(21)];
-    let sum = amounts.into_iter().checked_sum();
-    assert_eq!(sum, None);
-
-    let amounts = [SignedAmount::MAX, ssat(1), ssat(21)];
-    let sum = amounts.into_iter().checked_sum();
-    assert_eq!(sum, None);
-
-    let amounts = [ssat(42), ssat(3301), ssat(21)];
-    let sum = amounts.into_iter().checked_sum();
-    assert_eq!(sum, Some(ssat(3364)));
-}
-
-#[test]
 fn denomination_string_acceptable_forms() {
     // Exhaustive list of valid forms.
     let valid = [
@@ -1041,7 +988,7 @@ fn disallow_unknown_denomination() {
 #[test]
 #[cfg(feature = "alloc")]
 fn trailing_zeros_for_amount() {
-    let sat = Amount::from_sat;
+    let sat = |sat| Amount::from_sat(sat).unwrap();
 
     assert_eq!(format!("{}", sat(1_000_000)), "0.01 BTC");
     assert_eq!(format!("{}", Amount::ONE_SAT), "0.00000001 BTC");
@@ -1069,7 +1016,7 @@ fn trailing_zeros_for_amount() {
 #[test]
 #[allow(clippy::op_ref)]
 fn unsigned_addition() {
-    let sat = Amount::from_sat;
+    let sat = |sat| Amount::from_sat(sat).unwrap();
 
     let one = sat(1);
     let two = sat(2);
@@ -1084,7 +1031,7 @@ fn unsigned_addition() {
 #[test]
 #[allow(clippy::op_ref)]
 fn unsigned_subtract() {
-    let sat = Amount::from_sat;
+    let sat = |sat| Amount::from_sat(sat).unwrap();
 
     let one = sat(1);
     let two = sat(2);
@@ -1098,7 +1045,7 @@ fn unsigned_subtract() {
 
 #[test]
 fn unsigned_add_assign() {
-    let sat = Amount::from_sat;
+    let sat = |sat| Amount::from_sat(sat).unwrap();
 
     let mut f = sat(1);
     f += sat(2);
@@ -1111,7 +1058,7 @@ fn unsigned_add_assign() {
 
 #[test]
 fn unsigned_sub_assign() {
-    let sat = Amount::from_sat;
+    let sat = |sat| Amount::from_sat(sat).unwrap();
 
     let mut f = sat(3);
     f -= sat(2);
@@ -1125,7 +1072,7 @@ fn unsigned_sub_assign() {
 #[test]
 #[allow(clippy::op_ref)]
 fn signed_addition() {
-    let ssat = SignedAmount::from_sat;
+    let ssat = |sat| SignedAmount::from_sat(sat).unwrap();
 
     let one = ssat(1);
     let two = ssat(2);
@@ -1140,7 +1087,7 @@ fn signed_addition() {
 #[test]
 #[allow(clippy::op_ref)]
 fn signed_subtract() {
-    let ssat = SignedAmount::from_sat;
+    let ssat = |sat| SignedAmount::from_sat(sat).unwrap();
 
     let one = ssat(1);
     let two = ssat(2);
@@ -1154,7 +1101,7 @@ fn signed_subtract() {
 
 #[test]
 fn signed_add_assign() {
-    let ssat = SignedAmount::from_sat;
+    let ssat = |sat| SignedAmount::from_sat(sat).unwrap();
 
     let mut f = ssat(1);
     f += ssat(2);
@@ -1167,7 +1114,7 @@ fn signed_add_assign() {
 
 #[test]
 fn signed_sub_assign() {
-    let ssat = SignedAmount::from_sat;
+    let ssat = |sat| SignedAmount::from_sat(sat).unwrap();
 
     let mut f = ssat(3);
     f -= ssat(2);
