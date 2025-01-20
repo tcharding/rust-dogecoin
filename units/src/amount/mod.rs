@@ -69,7 +69,7 @@ pub use self::{
 /// for (string, sats) in equal {
 ///     assert_eq!(
 ///         string.parse::<Amount>().expect("valid bitcoin amount string"),
-///         Amount::from_sat(sats),
+///         Amount::from_sat(sats).expect("valid amount in satoshis"),
 ///     )
 /// }
 /// ```
@@ -580,8 +580,13 @@ enum DisplayStyle {
 
 /// Calculates the sum over the iterator using checked arithmetic.
 pub trait CheckedSum<R>: sealed::Sealed<R> {
-    /// Calculates the sum over the iterator using checked arithmetic. If an over or underflow would
-    /// happen it returns [`None`].
+    /// Calculates the sum over the iterator using checked arithmetic.
+    ///
+    /// # Returns
+    ///
+    /// Returns [`None`] if the result is above [`MAX_MONEY`].
+    ///
+    /// [`MAX_MONEY`]: crate::Amount::MAX_MONEY
     fn checked_sum(self) -> Option<R>;
 }
 

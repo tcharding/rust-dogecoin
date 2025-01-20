@@ -27,11 +27,12 @@ impl Amount {
     /// # Examples
     ///
     /// ```
-    /// # use bitcoin_units::{Amount, FeeRate, Weight};
-    /// let amount = Amount::from_sat(10);
+    /// # use bitcoin_units::{amount, Amount, FeeRate, Weight};
+    /// let amount = Amount::from_sat(10)?;
     /// let weight = Weight::from_wu(300);
     /// let fee_rate = amount.checked_div_by_weight_ceil(weight).expect("Division by weight failed");
     /// assert_eq!(fee_rate, FeeRate::from_sat_per_kwu(34));
+    /// # Ok::<_, amount::OutOfRangeError>(())
     /// ```
     #[cfg(feature = "alloc")]
     #[must_use]
@@ -143,7 +144,8 @@ impl FeeRate {
         // No `?` operator in const context.
         match self.to_sat_per_kwu().checked_mul(weight.to_wu()) {
             Some(mul_res) => match mul_res.checked_add(999) {
-                Some(add_res) => Some(Amount::from_sat(add_res / 1000)),
+                // Unchecked because div by 1000 cannot be out of range.
+                Some(add_res) => Some(Amount::from_sat_unchecked(add_res / 1000)),
                 None => None,
             },
             None => None,
@@ -151,19 +153,38 @@ impl FeeRate {
     }
 }
 
-/// Computes the ceiling so that the fee computation is conservative.
 impl ops::Mul<FeeRate> for Weight {
     type Output = Amount;
 
+    /// Enables `fee = fee_rate * weight`.
+    ///
+    /// Computes the ceiling so that the fee computation is conservative. Consider using
+    /// [`FeeRate::checked_mul_by_weight`] if you do not control both the fee rate and the weight
+    /// because this function can panic.
+    ///
+    /// # Panics
+    ///
+    /// If `fee_rate * weight` exceeds `Amount::MAX_MONEY`.
     fn mul(self, rhs: FeeRate) -> Self::Output {
-        Amount::from_sat((rhs.to_sat_per_kwu() * self.to_wu() + 999) / 1000)
+        rhs.checked_mul_by_weight(self).expect("attempted to calculate absurdly high fee")
     }
 }
 
 impl ops::Mul<Weight> for FeeRate {
     type Output = Amount;
 
-    fn mul(self, rhs: Weight) -> Self::Output { rhs * self }
+    /// Enables `fee = weight * fee_rate`.
+    ///
+    /// Computes the ceiling so that the fee computation is conservative. Consider using
+    /// [`FeeRate::checked_mul_by_weight`] if you do not control both the fee rate and the weight
+    /// because this function can panic.
+    ///
+    /// # Panics
+    ///
+    /// If `weight * fee_rate` exceeds `Amount::MAX_MONEY`.
+    fn mul(self, rhs: Weight) -> Self::Output {
+        self.checked_mul_by_weight(rhs).expect("attempted to calculate absurdly high fee")
+    }
 }
 
 impl ops::Div<Weight> for Amount {
