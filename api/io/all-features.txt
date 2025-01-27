@@ -7,6 +7,14 @@ impl bitcoin_io::BufRead for alloc::collections::vec_deque::VecDeque<u8>
 impl bitcoin_io::BufRead for std::io::stdio::StdinLock<'_>
 impl bitcoin_io::BufRead for std::io::util::Empty
 impl bitcoin_io::Error
+impl bitcoin_io::HashReader for bitcoin_hashes::hash160::Hash
+impl bitcoin_io::HashReader for bitcoin_hashes::ripemd160::Hash
+impl bitcoin_io::HashReader for bitcoin_hashes::sha1::Hash
+impl bitcoin_io::HashReader for bitcoin_hashes::sha256::Hash
+impl bitcoin_io::HashReader for bitcoin_hashes::sha256d::Hash
+impl bitcoin_io::HashReader for bitcoin_hashes::sha384::Hash
+impl bitcoin_io::HashReader for bitcoin_hashes::sha512::Hash
+impl bitcoin_io::HashReader for bitcoin_hashes::sha512_256::Hash
 impl bitcoin_io::Read for &[u8]
 impl bitcoin_io::Read for &std::fs::File
 impl bitcoin_io::Read for &std::io::stdio::Stdin
@@ -34,6 +42,15 @@ impl bitcoin_io::Write for &std::process::ChildStdin
 impl bitcoin_io::Write for alloc::collections::vec_deque::VecDeque<u8>
 impl bitcoin_io::Write for alloc::sync::Arc<std::fs::File>
 impl bitcoin_io::Write for alloc::vec::Vec<u8>
+impl bitcoin_io::Write for bitcoin_hashes::hash160::HashEngine
+impl bitcoin_io::Write for bitcoin_hashes::ripemd160::HashEngine
+impl bitcoin_io::Write for bitcoin_hashes::sha1::HashEngine
+impl bitcoin_io::Write for bitcoin_hashes::sha256::HashEngine
+impl bitcoin_io::Write for bitcoin_hashes::sha256d::HashEngine
+impl bitcoin_io::Write for bitcoin_hashes::sha384::HashEngine
+impl bitcoin_io::Write for bitcoin_hashes::sha512::HashEngine
+impl bitcoin_io::Write for bitcoin_hashes::sha512_256::HashEngine
+impl bitcoin_io::Write for bitcoin_hashes::siphash24::HashEngine
 impl bitcoin_io::Write for bitcoin_io::Sink
 impl bitcoin_io::Write for std::fs::File
 impl bitcoin_io::Write for std::io::cursor::Cursor<&mut alloc::vec::Vec<u8>>
@@ -96,6 +113,9 @@ impl<R: std::io::BufRead> bitcoin_io::BufRead for std::io::Take<R>
 impl<R: std::io::Read> bitcoin_io::Read for std::io::Take<R>
 impl<R> bitcoin_io::BufRead for std::io::buffered::bufreader::BufReader<R> where R: ?core::marker::Sized + std::io::Read
 impl<R> bitcoin_io::Read for std::io::buffered::bufreader::BufReader<R> where R: ?core::marker::Sized + std::io::Read
+impl<T: bitcoin_hashes::GeneralHash> bitcoin_io::HashReader for bitcoin_hashes::hmac::Hmac<T>
+impl<T: bitcoin_hashes::GeneralHash> bitcoin_io::Write for bitcoin_hashes::hmac::HmacEngine<T>
+impl<T: bitcoin_hashes::sha256t::Tag> bitcoin_io::HashReader for bitcoin_hashes::sha256t::Hash<T>
 impl<T: bitcoin_io::BufRead> bitcoin_io::BufRead for &mut T
 impl<T: bitcoin_io::BufRead> bitcoin_io::BufRead for bitcoin_io::ToStd<T>
 impl<T: bitcoin_io::BufRead> std::io::BufRead for bitcoin_io::ToStd<T>
@@ -226,6 +246,27 @@ pub fn alloc::sync::Arc<std::fs::File>::write(&mut self, buf: &[u8]) -> bitcoin_
 pub fn alloc::sync::Arc<std::fs::File>::write_all(&mut self, buf: &[u8]) -> bitcoin_io::Result<()>
 pub fn alloc::vec::Vec<u8>::flush(&mut self) -> bitcoin_io::Result<()>
 pub fn alloc::vec::Vec<u8>::write(&mut self, buf: &[u8]) -> bitcoin_io::Result<usize>
+pub fn bitcoin_hashes::hash160::HashEngine::flush(&mut self) -> bitcoin_io::Result<()>
+pub fn bitcoin_hashes::hash160::HashEngine::write(&mut self, buf: &[u8]) -> bitcoin_io::Result<usize>
+pub fn bitcoin_hashes::hmac::HmacEngine<T>::flush(&mut self) -> bitcoin_io::Result<()>
+pub fn bitcoin_hashes::hmac::HmacEngine<T>::write(&mut self, buf: &[u8]) -> bitcoin_io::Result<usize>
+pub fn bitcoin_hashes::ripemd160::HashEngine::flush(&mut self) -> bitcoin_io::Result<()>
+pub fn bitcoin_hashes::ripemd160::HashEngine::write(&mut self, buf: &[u8]) -> bitcoin_io::Result<usize>
+pub fn bitcoin_hashes::sha1::HashEngine::flush(&mut self) -> bitcoin_io::Result<()>
+pub fn bitcoin_hashes::sha1::HashEngine::write(&mut self, buf: &[u8]) -> bitcoin_io::Result<usize>
+pub fn bitcoin_hashes::sha256::HashEngine::flush(&mut self) -> bitcoin_io::Result<()>
+pub fn bitcoin_hashes::sha256::HashEngine::write(&mut self, buf: &[u8]) -> bitcoin_io::Result<usize>
+pub fn bitcoin_hashes::sha256d::HashEngine::flush(&mut self) -> bitcoin_io::Result<()>
+pub fn bitcoin_hashes::sha256d::HashEngine::write(&mut self, buf: &[u8]) -> bitcoin_io::Result<usize>
+pub fn bitcoin_hashes::sha256t::Hash<T>::hash_reader<R: bitcoin_io::BufRead>(reader: &mut R) -> core::result::Result<Self, bitcoin_io::Error>
+pub fn bitcoin_hashes::sha384::HashEngine::flush(&mut self) -> bitcoin_io::Result<()>
+pub fn bitcoin_hashes::sha384::HashEngine::write(&mut self, buf: &[u8]) -> bitcoin_io::Result<usize>
+pub fn bitcoin_hashes::sha512::HashEngine::flush(&mut self) -> bitcoin_io::Result<()>
+pub fn bitcoin_hashes::sha512::HashEngine::write(&mut self, buf: &[u8]) -> bitcoin_io::Result<usize>
+pub fn bitcoin_hashes::sha512_256::HashEngine::flush(&mut self) -> bitcoin_io::Result<()>
+pub fn bitcoin_hashes::sha512_256::HashEngine::write(&mut self, buf: &[u8]) -> bitcoin_io::Result<usize>
+pub fn bitcoin_hashes::siphash24::HashEngine::flush(&mut self) -> bitcoin_io::Result<()>
+pub fn bitcoin_hashes::siphash24::HashEngine::write(&mut self, buf: &[u8]) -> bitcoin_io::Result<usize>
 pub fn bitcoin_io::BufRead::consume(&mut self, amount: usize)
 pub fn bitcoin_io::BufRead::fill_buf(&mut self) -> bitcoin_io::Result<&[u8]>
 pub fn bitcoin_io::Cursor<T>::clone(&self) -> bitcoin_io::Cursor<T>
@@ -273,6 +314,7 @@ pub fn bitcoin_io::FromStd<T>::write(&mut self, buf: &[u8]) -> bitcoin_io::Resul
 pub fn bitcoin_io::FromStd<T>::write(&mut self, buf: &[u8]) -> std::io::error::Result<usize>
 pub fn bitcoin_io::FromStd<T>::write_all(&mut self, buf: &[u8]) -> bitcoin_io::Result<()>
 pub fn bitcoin_io::FromStd<T>::write_all(&mut self, buf: &[u8]) -> std::io::error::Result<()>
+pub fn bitcoin_io::HashReader::hash_reader<R: bitcoin_io::BufRead>(reader: &mut R) -> core::result::Result<Self, bitcoin_io::Error> where Self::Engine: core::default::Default
 pub fn bitcoin_io::Read::read(&mut self, buf: &mut [u8]) -> bitcoin_io::Result<usize>
 pub fn bitcoin_io::Read::read_exact(&mut self, buf: &mut [u8]) -> bitcoin_io::Result<()>
 pub fn bitcoin_io::Read::read_to_limit(&mut self, buf: &mut alloc::vec::Vec<u8>, limit: u64) -> bitcoin_io::Result<usize>
@@ -397,6 +439,7 @@ pub struct bitcoin_io::Error
 pub struct bitcoin_io::Sink
 pub struct bitcoin_io::Take<'a, R: bitcoin_io::Read + ?core::marker::Sized>
 pub trait bitcoin_io::BufRead: bitcoin_io::Read
+pub trait bitcoin_io::HashReader: bitcoin_hashes::GeneralHash + bitcoin_io::hash::sealed::Sealed
 pub trait bitcoin_io::Read
 pub trait bitcoin_io::Write
 pub type bitcoin_io::Result<T> = core::result::Result<T, bitcoin_io::Error>
