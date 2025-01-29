@@ -130,7 +130,7 @@ mod sealed {
 
 /// Marker of status of address's network validation. See section [*Parsing addresses*](Address#parsing-addresses)
 /// on [`Address`] for details.
-pub trait NetworkValidation: sealed::NetworkValidation + Sync + Send + Sized + Unpin {
+pub trait NetworkValidation: sealed::NetworkValidation {
     /// Indicates whether this `NetworkValidation` is `NetworkChecked` or not.
     const IS_CHECKED: bool;
 }
@@ -140,7 +140,7 @@ pub trait NetworkValidation: sealed::NetworkValidation + Sync + Send + Sized + U
 /// This allows users to use `V: NetworkValidation` in conjunction with derives. Is only ever
 /// implemented for `NetworkUnchecked`.
 pub trait NetworkValidationUnchecked:
-    NetworkValidation + sealed::NetworkValidationUnchecked + Sync + Send + Sized + Unpin
+    NetworkValidation + sealed::NetworkValidationUnchecked
 {
 }
 
