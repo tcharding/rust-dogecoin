@@ -259,8 +259,6 @@ impl core::hash::Hash for bitcoin_units::locktime::absolute::Time
 impl core::hash::Hash for bitcoin_units::locktime::relative::Height
 impl core::hash::Hash for bitcoin_units::locktime::relative::Time
 impl core::hash::Hash for bitcoin_units::weight::Weight
-impl core::iter::traits::accum::Sum for bitcoin_units::Amount
-impl core::iter::traits::accum::Sum for bitcoin_units::SignedAmount
 impl core::iter::traits::accum::Sum for bitcoin_units::block::BlockInterval
 impl core::iter::traits::accum::Sum for bitcoin_units::fee_rate::FeeRate
 impl core::iter::traits::accum::Sum for bitcoin_units::weight::Weight
@@ -573,8 +571,6 @@ impl core::str::traits::FromStr for bitcoin_units::locktime::absolute::Time
 impl core::str::traits::FromStr for bitcoin_units::locktime::relative::Height
 impl core::str::traits::FromStr for bitcoin_units::locktime::relative::Time
 impl core::str::traits::FromStr for bitcoin_units::weight::Weight
-impl<'a> core::iter::traits::accum::Sum<&'a bitcoin_units::Amount> for bitcoin_units::Amount
-impl<'a> core::iter::traits::accum::Sum<&'a bitcoin_units::SignedAmount> for bitcoin_units::SignedAmount
 impl<'a> core::iter::traits::accum::Sum<&'a bitcoin_units::block::BlockInterval> for bitcoin_units::block::BlockInterval
 impl<'a> core::iter::traits::accum::Sum<&'a bitcoin_units::fee_rate::FeeRate> for bitcoin_units::fee_rate::FeeRate
 impl<'a> core::iter::traits::accum::Sum<&'a bitcoin_units::weight::Weight> for bitcoin_units::weight::Weight
@@ -650,18 +646,21 @@ pub const fn bitcoin_units::Amount::checked_div_by_fee_rate_floor(self, fee_rate
 pub const fn bitcoin_units::Amount::checked_mul(self, rhs: u64) -> core::option::Option<bitcoin_units::Amount>
 pub const fn bitcoin_units::Amount::checked_rem(self, rhs: u64) -> core::option::Option<bitcoin_units::Amount>
 pub const fn bitcoin_units::Amount::checked_sub(self, rhs: bitcoin_units::Amount) -> core::option::Option<bitcoin_units::Amount>
-pub const fn bitcoin_units::Amount::from_int_btc_const(whole_bitcoin: u32) -> bitcoin_units::Amount
-pub const fn bitcoin_units::Amount::from_sat(satoshi: u64) -> bitcoin_units::Amount
+pub const fn bitcoin_units::Amount::from_int_btc_const(whole_bitcoin: u32) -> core::result::Result<bitcoin_units::Amount, bitcoin_units::amount::OutOfRangeError>
+pub const fn bitcoin_units::Amount::from_sat(satoshi: u64) -> core::result::Result<bitcoin_units::Amount, bitcoin_units::amount::OutOfRangeError>
 pub const fn bitcoin_units::Amount::from_sat_unchecked(satoshi: u64) -> bitcoin_units::Amount
+pub const fn bitcoin_units::Amount::from_u32_btc_const(whole_bitcoin: u32) -> core::result::Result<bitcoin_units::Amount, bitcoin_units::amount::OutOfRangeError>
 pub const fn bitcoin_units::Amount::to_sat(self) -> u64
+pub const fn bitcoin_units::SignedAmount::abs(self) -> bitcoin_units::SignedAmount
 pub const fn bitcoin_units::SignedAmount::checked_abs(self) -> core::option::Option<bitcoin_units::SignedAmount>
 pub const fn bitcoin_units::SignedAmount::checked_add(self, rhs: bitcoin_units::SignedAmount) -> core::option::Option<bitcoin_units::SignedAmount>
 pub const fn bitcoin_units::SignedAmount::checked_div(self, rhs: i64) -> core::option::Option<bitcoin_units::SignedAmount>
 pub const fn bitcoin_units::SignedAmount::checked_mul(self, rhs: i64) -> core::option::Option<bitcoin_units::SignedAmount>
 pub const fn bitcoin_units::SignedAmount::checked_rem(self, rhs: i64) -> core::option::Option<bitcoin_units::SignedAmount>
 pub const fn bitcoin_units::SignedAmount::checked_sub(self, rhs: bitcoin_units::SignedAmount) -> core::option::Option<bitcoin_units::SignedAmount>
-pub const fn bitcoin_units::SignedAmount::from_int_btc_const(whole_bitcoin: i64) -> bitcoin_units::SignedAmount
-pub const fn bitcoin_units::SignedAmount::from_sat(satoshi: i64) -> bitcoin_units::SignedAmount
+pub const fn bitcoin_units::SignedAmount::from_i32_btc_const(whole_bitcoin: i32) -> core::result::Result<bitcoin_units::SignedAmount, bitcoin_units::amount::OutOfRangeError>
+pub const fn bitcoin_units::SignedAmount::from_int_btc_const(whole_bitcoin: i64) -> core::result::Result<bitcoin_units::SignedAmount, bitcoin_units::amount::OutOfRangeError>
+pub const fn bitcoin_units::SignedAmount::from_sat(satoshi: i64) -> core::result::Result<bitcoin_units::SignedAmount, bitcoin_units::amount::OutOfRangeError>
 pub const fn bitcoin_units::SignedAmount::from_sat_unchecked(satoshi: i64) -> bitcoin_units::SignedAmount
 pub const fn bitcoin_units::SignedAmount::to_sat(self) -> i64
 pub const fn bitcoin_units::block::BlockHeight::from_u32(inner: u32) -> Self
@@ -745,6 +744,7 @@ pub fn bitcoin_units::Amount::from_int_btc<T: core::convert::Into<u64>>(whole_bi
 pub fn bitcoin_units::Amount::from_str(s: &str) -> core::result::Result<Self, Self::Err>
 pub fn bitcoin_units::Amount::from_str_in(s: &str, denom: bitcoin_units::amount::Denomination) -> core::result::Result<bitcoin_units::Amount, bitcoin_units::amount::ParseAmountError>
 pub fn bitcoin_units::Amount::from_str_with_denomination(s: &str) -> core::result::Result<bitcoin_units::Amount, bitcoin_units::amount::ParseError>
+pub fn bitcoin_units::Amount::from_u32_btc<T: core::convert::Into<u32>>(whole_bitcoin: T) -> core::result::Result<bitcoin_units::Amount, bitcoin_units::amount::OutOfRangeError>
 pub fn bitcoin_units::Amount::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
 pub fn bitcoin_units::Amount::mul(self, rhs: u64) -> Self::Output
 pub fn bitcoin_units::Amount::mul_assign(&mut self, rhs: u64)
@@ -755,13 +755,10 @@ pub fn bitcoin_units::Amount::sub(self, rhs: &bitcoin_units::Amount) -> Self::Ou
 pub fn bitcoin_units::Amount::sub(self, rhs: bitcoin_units::Amount) -> Self::Output
 pub fn bitcoin_units::Amount::sub_assign(&mut self, rhs: &bitcoin_units::Amount)
 pub fn bitcoin_units::Amount::sub_assign(&mut self, rhs: bitcoin_units::Amount)
-pub fn bitcoin_units::Amount::sum<I: core::iter::traits::iterator::Iterator<Item = Self>>(iter: I) -> Self
-pub fn bitcoin_units::Amount::sum<I>(iter: I) -> Self where I: core::iter::traits::iterator::Iterator<Item = &'a bitcoin_units::Amount>
 pub fn bitcoin_units::Amount::to_signed(self) -> bitcoin_units::SignedAmount
 pub fn bitcoin_units::Amount::try_from(value: bitcoin_units::SignedAmount) -> core::result::Result<Self, Self::Error>
 pub fn bitcoin_units::Amount::unchecked_add(self, rhs: bitcoin_units::Amount) -> bitcoin_units::Amount
 pub fn bitcoin_units::Amount::unchecked_sub(self, rhs: bitcoin_units::Amount) -> bitcoin_units::Amount
-pub fn bitcoin_units::SignedAmount::abs(self) -> bitcoin_units::SignedAmount
 pub fn bitcoin_units::SignedAmount::add(self, rhs: &bitcoin_units::SignedAmount) -> Self::Output
 pub fn bitcoin_units::SignedAmount::add(self, rhs: bitcoin_units::SignedAmount) -> Self::Output
 pub fn bitcoin_units::SignedAmount::add_assign(&mut self, rhs: &bitcoin_units::SignedAmount)
@@ -776,6 +773,7 @@ pub fn bitcoin_units::SignedAmount::div_assign(&mut self, rhs: i64)
 pub fn bitcoin_units::SignedAmount::eq(&self, other: &bitcoin_units::SignedAmount) -> bool
 pub fn bitcoin_units::SignedAmount::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 pub fn bitcoin_units::SignedAmount::from(value: bitcoin_units::Amount) -> Self
+pub fn bitcoin_units::SignedAmount::from_i32_btc<T: core::convert::Into<i32>>(whole_bitcoin: T) -> core::result::Result<bitcoin_units::SignedAmount, bitcoin_units::amount::OutOfRangeError>
 pub fn bitcoin_units::SignedAmount::from_int_btc<T: core::convert::Into<i64>>(whole_bitcoin: T) -> core::result::Result<bitcoin_units::SignedAmount, bitcoin_units::amount::OutOfRangeError>
 pub fn bitcoin_units::SignedAmount::from_str(s: &str) -> core::result::Result<Self, Self::Err>
 pub fn bitcoin_units::SignedAmount::from_str_in(s: &str, denom: bitcoin_units::amount::Denomination) -> core::result::Result<bitcoin_units::SignedAmount, bitcoin_units::amount::ParseAmountError>
@@ -795,8 +793,6 @@ pub fn bitcoin_units::SignedAmount::sub(self, rhs: &bitcoin_units::SignedAmount)
 pub fn bitcoin_units::SignedAmount::sub(self, rhs: bitcoin_units::SignedAmount) -> Self::Output
 pub fn bitcoin_units::SignedAmount::sub_assign(&mut self, rhs: &bitcoin_units::SignedAmount)
 pub fn bitcoin_units::SignedAmount::sub_assign(&mut self, rhs: bitcoin_units::SignedAmount)
-pub fn bitcoin_units::SignedAmount::sum<I: core::iter::traits::iterator::Iterator<Item = Self>>(iter: I) -> Self
-pub fn bitcoin_units::SignedAmount::sum<I>(iter: I) -> Self where I: core::iter::traits::iterator::Iterator<Item = &'a bitcoin_units::SignedAmount>
 pub fn bitcoin_units::SignedAmount::to_unsigned(self) -> core::result::Result<bitcoin_units::Amount, bitcoin_units::amount::OutOfRangeError>
 pub fn bitcoin_units::SignedAmount::unchecked_add(self, rhs: bitcoin_units::SignedAmount) -> bitcoin_units::SignedAmount
 pub fn bitcoin_units::SignedAmount::unchecked_sub(self, rhs: bitcoin_units::SignedAmount) -> bitcoin_units::SignedAmount
